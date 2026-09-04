@@ -11,7 +11,7 @@ android {
 
 	defaultConfig {
 		applicationId "com.MuslimMedia.ans"
-		minSdkVersion 21
+		minSdkVersion 23
 		// NOTE: targetSdkVersion intentionally kept at the original value.
 		// The app relies on legacy (non-scoped) external storage access via
 		// android:requestLegacyExternalStorage, which Android only honors up
