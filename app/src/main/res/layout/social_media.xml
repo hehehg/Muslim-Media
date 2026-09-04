@@ -448,6 +448,8 @@
 									android:id="@+id/blur_switch"
 									android:layout_width="match_parent"
 									android:layout_height="wrap_content"
+									android:layout_margin="5dp"
+									android:padding="8dp"
 									android:text="تشويش الصور والفيديوهات"
 									android:textSize="18sp"
 									android:textColor="#FFFFFF"
@@ -456,13 +458,18 @@
 									android:id="@+id/blur_video_switch"
 									android:layout_width="match_parent"
 									android:layout_height="wrap_content"
+									android:layout_margin="5dp"
+									android:padding="8dp"
 									android:text="تشويش الفيديوهات أيضًا"
 									android:textSize="18sp"
 									android:textColor="#FFFFFF"
 									android:checked="true" />
 								<TextView
+									android:id="@+id/blur_amount_label"
 									android:layout_width="match_parent"
 									android:layout_height="wrap_content"
+									android:layout_margin="5dp"
+									android:padding="8dp"
 									android:text="درجة التشويش"
 									android:textSize="16sp"
 									android:textColor="#FFFFFF" />
@@ -470,7 +477,7 @@
 									android:id="@+id/blur_amount"
 									android:layout_width="match_parent"
 									android:layout_height="wrap_content"
-									android:max="24"
+									android:max="40"
 									android:progress="10" />
 							<TextView
 								android:id="@+id/textview13"
@@ -750,9 +757,18 @@
 					android:layout_width="50dp"
 					android:layout_height="50dp"
 					android:layout_marginTop="15dp"
-					android:layout_marginBottom="100dp"
 					android:background="#673AB7"
 					android:src="@drawable/ic_camera_alt_white"
+					android:scaleType="center" />
+				<ImageView
+					android:id="@+id/fab_blur_toggle"
+					android:layout_width="50dp"
+					android:layout_height="50dp"
+					android:layout_marginTop="15dp"
+					android:layout_marginBottom="100dp"
+					android:background="#673AB7"
+					android:contentDescription="تفعيل أو إيقاف التشويش"
+					android:src="@drawable/ic_layers_clear_white"
 					android:scaleType="center" />
 			</LinearLayout>
 		</LinearLayout>

@@ -179,6 +179,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 	private Switch blurSwitch;
 	private Switch blurVideoSwitch;
 	private SeekBar blurAmount;
+	private TextView blurAmountLabel;
 	private LinearLayout linear13;
 	private LinearLayout linear14;
 	private ProgressBar progressbar1;
@@ -207,6 +208,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 	private ImageView back_btn;
 	private ImageView back_home_btn;
 	private ImageView fab_enable_image;
+	private ImageView fabBlurToggle;
 	
 	private Calendar tim = Calendar.getInstance();
 	private SharedPreferences sv;
@@ -329,6 +331,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 		blurSwitch = findViewById(R.id.blur_switch);
 		blurVideoSwitch = findViewById(R.id.blur_video_switch);
 		blurAmount = findViewById(R.id.blur_amount);
+		blurAmountLabel = findViewById(R.id.blur_amount_label);
 		linear13 = findViewById(R.id.linear13);
 		linear14 = findViewById(R.id.linear14);
 		progressbar1 = findViewById(R.id.progressbar1);
@@ -371,6 +374,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 		back_btn = findViewById(R.id.back_btn);
 		back_home_btn = findViewById(R.id.back_home_btn);
 		fab_enable_image = findViewById(R.id.fab_enable_image);
+		fabBlurToggle = findViewById(R.id.fab_blur_toggle);
 		sv = getSharedPreferences("sv", Activity.MODE_PRIVATE);
 		nonet = new RequestNetwork(this);
 		d = new AlertDialog.Builder(this);
@@ -386,9 +390,18 @@ public class SocialMediaActivity extends AppCompatActivity {
 		blurSwitch.setChecked(sv.getBoolean("blur_enabled", true));
 		blurVideoSwitch.setChecked(sv.getBoolean("blur_video_enabled", true));
 		blurAmount.setProgress(sv.getInt("blur_amount", 10));
+		updateBlurFabIcon();
 		blurSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
 			sv.edit().putBoolean("blur_enabled", isChecked).apply();
+			updateBlurFabIcon();
 			applyBlurToAllWebViews();
+		});
+		fabBlurToggle.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View view) {
+				blurSwitch.setChecked(!blurSwitch.isChecked());
+				updateBlurFabIcon();
+			}
 		});
 		blurVideoSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
 			sv.edit().putBoolean("blur_video_enabled", isChecked).apply();
@@ -1213,13 +1226,13 @@ public class SocialMediaActivity extends AppCompatActivity {
 											if (Filtering_text.contains("https") || (Filtering_text.contains("http") || Filtering_text.contains("http:"))) {
 												webview1.loadUrl(Filtering_text);
 												webview1.setVisibility(View.VISIBLE);
-												listview2.setVisibility(View.INVISIBLE);
+												listview2.setVisibility(View.GONE);
 												fasb = false;
 											}
 											else {
 												webview1.loadUrl(textview1.getText().toString());
 												webview1.setVisibility(View.VISIBLE);
-												listview2.setVisibility(View.INVISIBLE);
+												listview2.setVisibility(View.GONE);
 												fasb = false;
 											}
 										}
@@ -1266,7 +1279,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 				if (!his.getString("dato", "").equals("")) {
 					if (fasb) {
 						webview1.setVisibility(View.VISIBLE);
-						listview2.setVisibility(View.INVISIBLE);
+						listview2.setVisibility(View.GONE);
 						fasb = false;
 					}
 					else {
@@ -2212,6 +2225,12 @@ public class SocialMediaActivity extends AppCompatActivity {
 		textview13.setBackgroundResource(R.drawable.btn_ripple);
 		textview15.setBackgroundResource(R.drawable.btn_ripple);
 		switch1.setBackgroundResource(R.drawable.btn_ripple);
+		blurSwitch.setBackgroundResource(R.drawable.btn_ripple);
+		blurVideoSwitch.setBackgroundResource(R.drawable.btn_ripple);
+		blurAmountLabel.setBackgroundResource(R.drawable.btn_ripple);
+		blurSwitch.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/amiri.ttf"), 0);
+		blurVideoSwitch.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/amiri.ttf"), 0);
+		blurAmountLabel.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/amiri.ttf"), 0);
 		linear14.setBackgroundResource(R.drawable.btn_ripple);
 		search_linear.setBackgroundResource(R.drawable.btn_ripple);
 		//ألوان النصوص في الوضع الليلي أبيض
@@ -2239,6 +2258,9 @@ public class SocialMediaActivity extends AppCompatActivity {
 		button5.setTextColor(0xFFFFFFFF);
 		edittext2.setTextColor(0xFFFFFFFF);
 		switch1.setTextColor(0xFFFFFFFF);
+		blurSwitch.setTextColor(0xFFFFFFFF);
+		blurVideoSwitch.setTextColor(0xFFFFFFFF);
+		blurAmountLabel.setTextColor(0xFFFFFFFF);
 		button6.setTextColor(0xFFFFFFFF);
 		edittext3.setTextColor(0xFFFFFFFF);
 		textview6.setTextColor(0xFFFFFFFF);
@@ -2932,6 +2954,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 	
 	public void _fab() {
 		fab_enable_image.setBackground(new GradientDrawable() { public GradientDrawable getIns(int a, int b) { this.setCornerRadius(a); this.setColor(b); return this; } }.getIns((int)25, 0xFF673AB7));
+		fabBlurToggle.setBackground(new GradientDrawable() { public GradientDrawable getIns(int a, int b) { this.setCornerRadius(a); this.setColor(b); return this; } }.getIns((int)25, 0xFF673AB7));
 		back_home_btn.setBackground(new GradientDrawable() { public GradientDrawable getIns(int a, int b) { this.setCornerRadius(a); this.setColor(b); return this; } }.getIns((int)25, 0xFF673AB7));
 		back_btn.setBackground(new GradientDrawable() { public GradientDrawable getIns(int a, int b) { this.setCornerRadius(a); this.setColor(b); return this; } }.getIns((int)25, 0xFF673AB7));
 		web.setBackground(new GradientDrawable() { public GradientDrawable getIns(int a, int b) { this.setCornerRadius(a); this.setColor(b); return this; } }.getIns((int)25, 0xFF673AB7));
@@ -2945,7 +2968,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 		fab_linear.setVisibility(View.INVISIBLE);
 		faab = false;
 		webview1.setVisibility(View.VISIBLE);
-		listview2.setVisibility(View.INVISIBLE);
+		listview2.setVisibility(View.GONE);
 		fasb = false;
 		nighMode = 0;
 		block_urll.setVisibility(View.GONE);
@@ -3078,6 +3101,13 @@ DO NOT FORGET TO ADD THE PERMISSION TO THE MANIFEST TO RUN THIS APP, YOU CAN USE
 		applyBlur(Facebook);
 	}
 
+	private void updateBlurFabIcon() {
+		if (fabBlurToggle != null && blurSwitch != null) {
+			fabBlurToggle.setImageResource(blurSwitch.isChecked()
+					? R.drawable.ic_layers_clear_white : R.drawable.ic_camera_alt_white);
+		}
+	}
+
 	private void applyBlur(WebView webView) {
 		if (webView == null || webView.getUrl() == null) {
 			return;
@@ -3183,6 +3213,12 @@ DO NOT FORGET TO ADD THE PERMISSION TO THE MANIFEST TO RUN THIS APP, YOU CAN USE
 		textview14.setBackgroundResource(R.drawable.btn_ripple_day);
 		textview15.setBackgroundResource(R.drawable.btn_ripple_day);
 		switch1.setBackgroundResource(R.drawable.btn_ripple_day);
+		blurSwitch.setBackgroundResource(R.drawable.btn_ripple_day);
+		blurVideoSwitch.setBackgroundResource(R.drawable.btn_ripple_day);
+		blurAmountLabel.setBackgroundResource(R.drawable.btn_ripple_day);
+		blurSwitch.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/amiri.ttf"), 0);
+		blurVideoSwitch.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/amiri.ttf"), 0);
+		blurAmountLabel.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/amiri.ttf"), 0);
 		linear14.setBackgroundResource(R.drawable.btn_ripple_day);
 		search_linear.setBackgroundResource(R.drawable.btn_ripple_day);
 		
@@ -3217,6 +3253,9 @@ DO NOT FORGET TO ADD THE PERMISSION TO THE MANIFEST TO RUN THIS APP, YOU CAN USE
 		edittext2.setTextColor(dayText);
 		edittext5.setTextColor(dayText);
 		switch1.setTextColor(dayText);
+		blurSwitch.setTextColor(dayText);
+		blurVideoSwitch.setTextColor(dayText);
+		blurAmountLabel.setTextColor(dayText);
 		button6.setTextColor(dayText);
 		edittext3.setTextColor(dayText);
 		textview6.setTextColor(dayText);
