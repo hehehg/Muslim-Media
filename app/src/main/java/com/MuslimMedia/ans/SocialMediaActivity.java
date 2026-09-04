@@ -3103,7 +3103,9 @@ DO NOT FORGET TO ADD THE PERMISSION TO THE MANIFEST TO RUN THIS APP, YOU CAN USE
 
 	private void updateBlurFabIcon() {
 		if (fabBlurToggle != null && blurSwitch != null) {
-			fabBlurToggle.setImageResource(R.drawable.ic_blur_toggle);
+			fabBlurToggle.setImageResource(blurSwitch.isChecked()
+					? R.drawable.ic_blur_toggle
+					: R.drawable.ic_blur_disable);
 		}
 	}
 
