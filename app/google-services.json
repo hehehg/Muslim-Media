@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "551462178338",
+    "project_id": "muslim-filter",
+    "storage_bucket": "muslim-filter.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:551462178338:android:593841e31da0c6c6ac047b",
+        "android_client_info": {
+          "package_name": "com.noorconnect.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "551462178338-k66616br4rtiofsb7mm29up7ma1k5bmc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCj2U-zZB62hoL2Xu-uveJfN67CpWHPoEQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "551462178338-k66616br4rtiofsb7mm29up7ma1k5bmc.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
