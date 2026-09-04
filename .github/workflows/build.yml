@@ -2,9 +2,9 @@ name: Android CI
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: [ "v2-separate-users-depend-on-gender", "master" ]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: [ "v2-separate-users-depend-on-gender", "master" ]
   workflow_dispatch:
 
 jobs:
