@@ -72,11 +72,6 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void initializeLogic() {
-		if (userProfile.getString("gender", "").isEmpty()) {
-			showGenderDialog();
-		} else {
-			scheduleSocialMediaActivity();
-		}
 		if (!sav_mode.getString("mode", "").equals("")) {
 			if (sav_mode.getString("mode", "").equals("day")) {
 				_style_day();
@@ -87,6 +82,12 @@ public class MainActivity extends AppCompatActivity {
 		}
 		else {
 			sav_mode.edit().putString("mode", "night").commit();
+			_style();
+		}
+		if (userProfile.getString("gender", "").isEmpty()) {
+			showGenderDialog();
+		} else {
+			scheduleSocialMediaActivity();
 		}
 	}
 
@@ -108,19 +109,31 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private void showGenderDialog() {
-		final String[] genders = {"ذكر", "أنثى"};
-		AlertDialog dialog = new AlertDialog.Builder(this)
+		final boolean nightMode = "night".equals(sav_mode.getString("mode", "night"));
+		final int textColor = nightMode ? Color.WHITE : Color.rgb(33, 33, 33);
+		final LinearLayout choices = new LinearLayout(this);
+		choices.setOrientation(LinearLayout.VERTICAL);
+		choices.setPadding(24, 8, 24, 8);
+		RadioGroup genderGroup = new RadioGroup(this);
+		RadioButton male = createGenderChoice("ذكر", textColor);
+		RadioButton female = createGenderChoice("أنثى", textColor);
+		genderGroup.addView(male);
+		genderGroup.addView(female);
+		choices.addView(genderGroup);
+		final int dialogTheme = nightMode ? AlertDialog.THEME_DEVICE_DEFAULT_DARK
+				: AlertDialog.THEME_DEVICE_DEFAULT_LIGHT;
+		AlertDialog dialog = new AlertDialog.Builder(this, dialogTheme)
 				.setTitle("اختر جنسك")
 				.setMessage("سيُستخدم الاختيار لعرض المحتوى المناسب لك فقط")
-				.setSingleChoiceItems(genders, -1, null)
+				.setView(choices)
 				.setPositiveButton("متابعة", null)
 				.setCancelable(false)
 				.create();
 		dialog.setOnShowListener(unused -> {
 			Button positive = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
 			positive.setEnabled(false);
-			dialog.getListView().setOnItemClickListener((parent, view, position, id) -> {
-				userProfile.edit().putString("gender", position == 0 ? "male" : "female").apply();
+			genderGroup.setOnCheckedChangeListener((group, checkedId) -> {
+				userProfile.edit().putString("gender", checkedId == male.getId() ? "male" : "female").apply();
 				positive.setEnabled(true);
 			});
 			positive.setOnClickListener(view -> {
@@ -129,6 +142,18 @@ public class MainActivity extends AppCompatActivity {
 			});
 		});
 		dialog.show();
+	}
+
+	private RadioButton createGenderChoice(String text, int textColor) {
+		RadioButton choice = new RadioButton(this);
+		choice.setId(View.generateViewId());
+		choice.setText(text);
+		choice.setTextColor(textColor);
+		choice.setTextSize(18);
+		choice.setGravity(Gravity.RIGHT | Gravity.CENTER_VERTICAL);
+		choice.setLayoutDirection(View.LAYOUT_DIRECTION_RTL);
+		choice.setPadding(8, 12, 8, 12);
+		return choice;
 	}
 
 	@Override
