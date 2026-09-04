@@ -1,0 +1,2 @@
+rootProject.name = "MuslimMedia"
+include ':app'

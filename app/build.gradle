@@ -1,0 +1,55 @@
+plugins {
+	id 'com.android.application'
+}
+
+android {
+	namespace "com.MuslimMedia.ans"
+	compileSdk 34
+
+	useLibrary 'org.apache.http.legacy'
+
+	defaultConfig {
+		applicationId "com.MuslimMedia.ans"
+		minSdkVersion 21
+		// NOTE: targetSdkVersion intentionally kept at the original value.
+		// The app relies on legacy (non-scoped) external storage access via
+		// android:requestLegacyExternalStorage, which Android only honors up
+		// to targetSdkVersion 29. Bumping this without adapting the storage
+		// code (FileUtil / OfflineSbhaActivity / SocialMediaActivity) would
+		// silently break file read/write on Android 10+. Revisit this once
+		// storage access is migrated to scoped storage / MediaStore.
+		targetSdkVersion 28
+		versionCode 4
+		versionName "4.0"
+	}
+
+	buildTypes {
+		release {
+			minifyEnabled false
+			proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+		}
+	}
+
+	compileOptions {
+		sourceCompatibility JavaVersion.VERSION_1_8
+		targetCompatibility JavaVersion.VERSION_1_8
+	}
+
+	packagingOptions {
+		resources {
+			excludes += ['META-INF/DEPENDENCIES', 'META-INF/LICENSE', 'META-INF/LICENSE.txt', 'META-INF/NOTICE', 'META-INF/NOTICE.txt']
+		}
+	}
+
+	lint {
+		abortOnError false
+	}
+}
+
+dependencies {
+	implementation fileTree(dir: 'libs', include: ['*.jar'])
+	implementation 'androidx.appcompat:appcompat:1.6.1'
+	implementation 'com.google.android.material:material:1.11.0'
+	implementation 'com.google.code.gson:gson:2.10.1'
+	implementation 'com.squareup.okhttp3:okhttp:3.12.13'
+}
