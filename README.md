@@ -1,3 +1,13 @@
+# Muslim Media
+
+## Firebase moderation setup
+
+1. Create a Firebase project and enable Authentication > Anonymous and Cloud Firestore.
+2. Download `google-services.json` into the `app/` directory.
+3. Deploy `firestore.rules` with the Firebase CLI.
+4. In the `moderation_requests` collection, review each document and set `status` to `approved` or `rejected`. Set `audienceGender` to `male`, `female`, or `all` before approving.
+
+Each request contains `content`, `type`, `userId`, `audienceGender`, `status`, and `createdAt`. The app does not display browser/search content until its request is approved. Existing third-party WebView pages cannot be moderated by this app because their content and private messages are controlled by those services; only content routed through the app moderation request is gated.
 # وسائل تواصل المسلم (Muslim Media)
 
 تطبيق أندرويد (Java) يوفر واجهة "إسلامية" لتصفح مواقع التواصل الاجتماعي (يوتيوب، فيسبوك، إنستغرام، تويتر/X، واتساب ويب، تيليجرام ويب) داخل WebViews مع فلترة كلمات محظورة، بالإضافة إلى سبحة إلكترونية (تسبيح) بدون إنترنت.

@@ -236,6 +236,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 	private Intent open_wts = new Intent();
 	private SharedPreferences wts_clickk;
 	private SharedPreferences imo_clic;
+	private SharedPreferences userProfile;
 	private Intent go_to_sbha = new Intent();
 	private final ArrayList<BroadcastReceiver> downloadReceivers = new ArrayList<>();
 	
@@ -383,6 +384,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 		sav_mode = getSharedPreferences("svamode", Activity.MODE_PRIVATE);
 		wts_clickk = getSharedPreferences("clic", Activity.MODE_PRIVATE);
 		imo_clic = getSharedPreferences("clikk", Activity.MODE_PRIVATE);
+		userProfile = getSharedPreferences("user_profile", Activity.MODE_PRIVATE);
 		blurSwitch.setChecked(sv.getBoolean("blur_enabled", true));
 		blurVideoSwitch.setChecked(sv.getBoolean("blur_video_enabled", true));
 		blurAmount.setProgress(sv.getInt("blur_amount", 10));
@@ -1190,57 +1192,12 @@ public class SocialMediaActivity extends AppCompatActivity {
 				for(int _repeat16 = 0; _repeat16 < (int)(tokendGot.size()); _repeat16++) {
 					Filtering_text = Filtering_text.trim().replace(tokendGot.get((int)(_repeat16)), "");
 				}
-				textview1.setText("https://www.google.com/search?q=".concat(Filtering_text.concat("&safe=strict")));
 				edittext3.setText("");
-				tt = new TimerTask() {
-					@Override
-					public void run() {
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								if (Filtering_text.equals("")) {
-									SketchwareUtil.showMessage(getApplicationContext(), "     سبحان الله وبحمده\n     سبحان الله العظيم ");
-								}
-								else {
-									if (Filtering_text.equals(" ")) {
-										SketchwareUtil.showMessage(getApplicationContext(), "    سبحان الله وبحمده\n    سبحان الله العظيم ");
-									}
-									else {
-										if (Filtering_text.equals("  ")) {
-											SketchwareUtil.showMessage(getApplicationContext(), "   سبحان الله وبحمده\n   سبحان الله العظيم ");
-										}
-										else {
-											if (Filtering_text.contains("https") || (Filtering_text.contains("http") || Filtering_text.contains("http:"))) {
-												webview1.loadUrl(Filtering_text);
-												webview1.setVisibility(View.VISIBLE);
-												listview2.setVisibility(View.INVISIBLE);
-												fasb = false;
-											}
-											else {
-												webview1.loadUrl(textview1.getText().toString());
-												webview1.setVisibility(View.VISIBLE);
-												listview2.setVisibility(View.INVISIBLE);
-												fasb = false;
-											}
-										}
-									}
-								}
-							}
-						});
-					}
-				};
-				_timer.schedule(tt, (int)(300));
-				{
-					HashMap<String, Object> _item = new HashMap<>();
-					_item.put("text", Filtering_text);
-					hist.add(_item);
+				if (Filtering_text.isEmpty()) {
+					SketchwareUtil.showMessage(getApplicationContext(), "أدخل رابطًا أو كلمة بحث أولًا");
+					return;
 				}
-				
-				his.edit().putString("dato", new Gson().toJson(hist)).commit();
-				listview2.setAdapter(new Listview2Adapter(hist));
-				((BaseAdapter)listview2.getAdapter()).notifyDataSetChanged();
-				block_urll.setVisibility(View.VISIBLE);
-				webview1.setVisibility(View.VISIBLE);
+				requestContentForModeration(Filtering_text);
 			}
 		});
 		
@@ -1819,6 +1776,46 @@ public class SocialMediaActivity extends AppCompatActivity {
 		};
 	}
 	
+	private void requestContentForModeration(final String content) {
+		SketchwareUtil.showMessage(getApplicationContext(), "المحتوى تحت المراجعة من الإدارة");
+		ContentModerationRepository.submit(this, content, content.startsWith("http") ? "url" : "search",
+				userProfile.getString("gender", ""), new ContentModerationRepository.Callback() {
+			@Override
+			public void onResult(String status, String requestId) {
+				runOnUiThread(() -> {
+					if ("pending".equals(status)) return;
+					if ("rejected".equals(status)) {
+						SketchwareUtil.showMessage(getApplicationContext(), "تم رفض المحتوى من الإدارة");
+						return;
+					}
+					String gender = userProfile.getString("gender", "");
+					if ("approved_male".equals(status) && !"male".equals(gender)
+							|| "approved_female".equals(status) && !"female".equals(gender)) {
+						SketchwareUtil.showMessage(getApplicationContext(), "هذا المحتوى غير مخصص لك");
+						return;
+					}
+					String target = content.startsWith("http") ? content
+							: "https://www.google.com/search?q=" + Uri.encode(content) + "&safe=strict";
+					webview1.loadUrl(target);
+					webview1.setVisibility(View.VISIBLE);
+					listview2.setVisibility(View.INVISIBLE);
+					fasb = false;
+					HashMap<String, Object> item = new HashMap<>();
+					item.put("text", content);
+					hist.add(item);
+					his.edit().putString("dato", new Gson().toJson(hist)).commit();
+					listview2.setAdapter(new Listview2Adapter(hist));
+					block_urll.setVisibility(View.VISIBLE);
+				});
+			}
+
+			@Override
+			public void onError(String message) {
+				runOnUiThread(() -> SketchwareUtil.showMessage(getApplicationContext(), message));
+			}
+		});
+	}
+
 	private void initializeLogic() {
 		_blo();
 		_savedata();
