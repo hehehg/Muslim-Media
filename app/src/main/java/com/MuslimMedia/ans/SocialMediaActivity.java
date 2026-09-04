@@ -42,6 +42,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.SeekBar;
 import android.widget.Switch;
 import android.widget.TextView;
 import androidx.annotation.*;
@@ -175,6 +176,9 @@ public class SocialMediaActivity extends AppCompatActivity {
 	private EditText edittext2;
 	private Switch switch1;
 	private Button button6;
+	private Switch blurSwitch;
+	private Switch blurVideoSwitch;
+	private SeekBar blurAmount;
 	private LinearLayout linear13;
 	private LinearLayout linear14;
 	private ProgressBar progressbar1;
@@ -233,6 +237,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 	private SharedPreferences wts_clickk;
 	private SharedPreferences imo_clic;
 	private Intent go_to_sbha = new Intent();
+	private final ArrayList<BroadcastReceiver> downloadReceivers = new ArrayList<>();
 	
 	@Override
 	protected void onCreate(Bundle _savedInstanceState) {
@@ -240,8 +245,9 @@ public class SocialMediaActivity extends AppCompatActivity {
 		setContentView(R.layout.social_media);
 		initialize(_savedInstanceState);
 		
-		if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
-		|| ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED) {
+		if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.S_V2
+				&& (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED
+				|| ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_DENIED)) {
 			ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1000);
 		} else {
 			initializeLogic();
@@ -320,6 +326,9 @@ public class SocialMediaActivity extends AppCompatActivity {
 		edittext2 = findViewById(R.id.edittext2);
 		switch1 = findViewById(R.id.switch1);
 		button6 = findViewById(R.id.button6);
+		blurSwitch = findViewById(R.id.blur_switch);
+		blurVideoSwitch = findViewById(R.id.blur_video_switch);
+		blurAmount = findViewById(R.id.blur_amount);
 		linear13 = findViewById(R.id.linear13);
 		linear14 = findViewById(R.id.linear14);
 		progressbar1 = findViewById(R.id.progressbar1);
@@ -374,6 +383,27 @@ public class SocialMediaActivity extends AppCompatActivity {
 		sav_mode = getSharedPreferences("svamode", Activity.MODE_PRIVATE);
 		wts_clickk = getSharedPreferences("clic", Activity.MODE_PRIVATE);
 		imo_clic = getSharedPreferences("clikk", Activity.MODE_PRIVATE);
+		blurSwitch.setChecked(sv.getBoolean("blur_enabled", true));
+		blurVideoSwitch.setChecked(sv.getBoolean("blur_video_enabled", true));
+		blurAmount.setProgress(sv.getInt("blur_amount", 10));
+		blurSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+			sv.edit().putBoolean("blur_enabled", isChecked).apply();
+			applyBlurToAllWebViews();
+		});
+		blurVideoSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+			sv.edit().putBoolean("blur_video_enabled", isChecked).apply();
+			applyBlurToAllWebViews();
+		});
+		blurAmount.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+			@Override public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				if (fromUser) {
+					sv.edit().putInt("blur_amount", Math.max(2, progress)).apply();
+					applyBlurToAllWebViews();
+				}
+			}
+			@Override public void onStartTrackingTouch(SeekBar seekBar) { }
+			@Override public void onStopTrackingTouch(SeekBar seekBar) { }
+		});
 		
 		search_linear.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -1270,6 +1300,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 			@Override
 			public void onPageFinished(WebView _param1, String _param2) {
 				final String _url = _param2;
+				applyBlur(_param1);
 				swiperefreshlayout1.setRefreshing(false);
 				progressbar1.setVisibility(View.GONE);
 				if (!webview1.getUrl().contains("https://www.google.com/search")) {
@@ -1316,6 +1347,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 			@Override
 			public void onPageFinished(WebView _param1, String _param2) {
 				final String _url = _param2;
+				applyBlur(_param1);
 				if (_url.contains("https://m.youtube.com/") || (_url.contains("https://accounts.google.com/") || _url.contains("https://studio.youtube.com/"))) {
 					
 				}
@@ -1352,6 +1384,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 			@Override
 			public void onPageFinished(WebView _param1, String _param2) {
 				final String _url = _param2;
+				applyBlur(_param1);
 				if (_url.contains("https://www.instagram.com/")) {
 					
 				}
@@ -1388,6 +1421,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 			@Override
 			public void onPageFinished(WebView _param1, String _param2) {
 				final String _url = _param2;
+				applyBlur(_param1);
 				if (_url.contains("https://x.com/")) {
 					
 				}
@@ -1424,6 +1458,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 			@Override
 			public void onPageFinished(WebView _param1, String _param2) {
 				final String _url = _param2;
+				applyBlur(_param1);
 				if (_url.contains("https://web.whatsapp.com/")) {
 					
 				}
@@ -1460,6 +1495,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 			@Override
 			public void onPageFinished(WebView _param1, String _param2) {
 				final String _url = _param2;
+				applyBlur(_param1);
 				if (_url.contains("https://web.telegram.org/")) {
 					
 				}
@@ -1496,6 +1532,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 			@Override
 			public void onPageFinished(WebView _param1, String _param2) {
 				final String _url = _param2;
+				applyBlur(_param1);
 				if (_url.contains("https://www.facebook.com/") || (_url.contains("https://m.facebook.com/") || _url.contains("https://business.facebook.com/"))) {
 					
 				}
@@ -2006,16 +2043,30 @@ public class SocialMediaActivity extends AppCompatActivity {
 	
 	@Override
 	public void onDestroy() {
+		unregisterDownloadReceivers();
 		super.onDestroy();
 		h++;
 		sv.edit().putString("taka", String.valueOf((long)(h)).replace("٠", "0").replace("١", "1").replace("٢", "2").replace("٣", "3").replace("٤", "4").replace("٥", "5").replace("٦", "6").replace("٧", "7").replace("٨", "8").replace("٩", "9")).commit();
 		lf = Calendar.getInstance();
 		sv.edit().putString("tim1", new SimpleDateFormat("HHmm").format(lf.getTime()).replace("٠", "0").replace("١", "1").replace("٢", "2").replace("٣", "3").replace("٤", "4").replace("٥", "5").replace("٦", "6").replace("٧", "7").replace("٨", "8").replace("٩", "9")).commit();
 		sv.edit().putString("totaltimeofglsa", String.valueOf((long)(Double.parseDouble(sv.getString("totaltimeofglsat", "0").replace("٠", "0").replace("١", "1").replace("٢", "2").replace("٣", "3").replace("٤", "4").replace("٥", "5").replace("٦", "6").replace("٧", "7").replace("٨", "8").replace("٩", "9"))))).commit();
-		oo.cancel();
+		if (oo != null) {
+			oo.cancel();
+		}
+		if (tt != null) {
+			tt.cancel();
+		}
+		if (timm != null) {
+			timm.cancel();
+		}
+		if (moda != null) {
+			moda.cancel();
+		}
+		if (_timer != null) {
+			_timer.cancel();
+		}
 		wts_clickk.edit().putString("wts", String.valueOf((long)(wts_click))).commit();
 		imo_clic.edit().putString("imo", String.valueOf((long)(imo_click))).commit();
-		finishAffinity();
 	}
 	public void _blo() {
 		if (sv.getString("switch", "").equals("")) {
@@ -2378,10 +2429,41 @@ public class SocialMediaActivity extends AppCompatActivity {
 	}
 	
 	
+	private boolean isSafeDownloadUrl(String value) {
+		try {
+			Uri uri = Uri.parse(value);
+			return "https".equalsIgnoreCase(uri.getScheme()) && uri.getHost() != null;
+		} catch (Exception e) {
+			return false;
+		}
+	}
+
+	private void registerDownloadReceiver(BroadcastReceiver receiver) {
+		if (receiver == null || downloadReceivers.contains(receiver)) return;
+		IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
+		if (Build.VERSION.SDK_INT >= 33) {
+			registerReceiver(receiver, filter, Context.RECEIVER_NOT_EXPORTED);
+		} else {
+			registerReceiver(receiver, filter);
+		}
+		downloadReceivers.add(receiver);
+	}
+
+	private void unregisterDownloadReceivers() {
+		for (BroadcastReceiver receiver : downloadReceivers) {
+			try {
+				unregisterReceiver(receiver);
+			} catch (IllegalArgumentException ignored) {
+			}
+		}
+		downloadReceivers.clear();
+	}
+
 	public void _download() {
 		imoo.setDownloadListener(new DownloadListener() {
 			    @Override
 			    public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+					if (!isSafeDownloadUrl(url)) return;
 				        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
 				        request.setTitle(URLUtil.guessFileName(url, contentDisposition, mimetype));
 				        request.setDescription("Downloading file...");
@@ -2392,7 +2474,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 				        dm.enqueue(request);
 				
 				        Toast.makeText(getApplicationContext(), "Downloading...", Toast.LENGTH_SHORT).show();
-				        registerReceiver(onComplete_imoo, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+						registerDownloadReceiver(onComplete_imoo);
 				    }
 			
 			    BroadcastReceiver onComplete_imoo = new BroadcastReceiver() {
@@ -2406,6 +2488,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 		whats.setDownloadListener(new DownloadListener() {
 			    @Override
 			    public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+					if (!isSafeDownloadUrl(url)) return;
 				        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
 				        request.setTitle(URLUtil.guessFileName(url, contentDisposition, mimetype));
 				        request.setDescription("Downloading file...");
@@ -2416,7 +2499,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 				        dm.enqueue(request);
 				
 				        Toast.makeText(getApplicationContext(), "Downloading...", Toast.LENGTH_SHORT).show();
-				        registerReceiver(onComplete_whats, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+						registerDownloadReceiver(onComplete_whats);
 				    }
 			
 			    BroadcastReceiver onComplete_whats = new BroadcastReceiver() {
@@ -2430,6 +2513,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 		twitt.setDownloadListener(new DownloadListener() {
 			    @Override
 			    public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+					if (!isSafeDownloadUrl(url)) return;
 				        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
 				        request.setTitle(URLUtil.guessFileName(url, contentDisposition, mimetype));
 				        request.setDescription("Downloading file...");
@@ -2440,7 +2524,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 				        dm.enqueue(request);
 				
 				        Toast.makeText(getApplicationContext(), "Downloading...", Toast.LENGTH_SHORT).show();
-				        registerReceiver(onComplete_twitt, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+						registerDownloadReceiver(onComplete_twitt);
 				    }
 			
 			    BroadcastReceiver onComplete_twitt = new BroadcastReceiver() {
@@ -2454,6 +2538,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 		insta.setDownloadListener(new DownloadListener() {
 			    @Override
 			    public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+					if (!isSafeDownloadUrl(url)) return;
 				        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
 				        request.setTitle(URLUtil.guessFileName(url, contentDisposition, mimetype));
 				        request.setDescription("Downloading file...");
@@ -2464,7 +2549,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 				        dm.enqueue(request);
 				
 				        Toast.makeText(getApplicationContext(), "Downloading...", Toast.LENGTH_SHORT).show();
-				        registerReceiver(onComplete_insta, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+						registerDownloadReceiver(onComplete_insta);
 				    }
 			
 			    BroadcastReceiver onComplete_insta = new BroadcastReceiver() {
@@ -2478,6 +2563,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 		Facebook.setDownloadListener(new DownloadListener() {
 			    @Override
 			    public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+					if (!isSafeDownloadUrl(url)) return;
 				        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
 				        request.setTitle(URLUtil.guessFileName(url, contentDisposition, mimetype));
 				        request.setDescription("Downloading file...");
@@ -2491,7 +2577,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 				        dm.enqueue(request);
 				
 				        Toast.makeText(getApplicationContext(), "Downloading...", Toast.LENGTH_SHORT).show();
-				        registerReceiver(onComplete_Facebook, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+						registerDownloadReceiver(onComplete_Facebook);
 				    }
 			
 			    BroadcastReceiver onComplete_Facebook = new BroadcastReceiver() {
@@ -2505,6 +2591,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 		Youtube.setDownloadListener(new DownloadListener() {
 			    @Override
 			    public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimetype, long contentLength) {
+					if (!isSafeDownloadUrl(url)) return;
 				        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
 				        request.setTitle(URLUtil.guessFileName(url, contentDisposition, mimetype));
 				        request.setDescription("Downloading file...");
@@ -2518,7 +2605,7 @@ public class SocialMediaActivity extends AppCompatActivity {
 				        dm.enqueue(request);
 				
 				        Toast.makeText(getApplicationContext(), "Downloading...", Toast.LENGTH_SHORT).show();
-				        registerReceiver(onComplete_Youtube, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+						registerDownloadReceiver(onComplete_Youtube);
 				    }
 			
 			    BroadcastReceiver onComplete_Youtube = new BroadcastReceiver() {
@@ -2531,42 +2618,6 @@ public class SocialMediaActivity extends AppCompatActivity {
 		
 		webview1.getSettings().setJavaScriptEnabled(true);
 		
-		webview1.addJavascriptInterface(new Object() {
-			
-			    @android.webkit.JavascriptInterface
-			    public void saveBase64FromBlob(String base64Data, String fileName) {
-				        try {
-					            String base64 = base64Data.split(",")[1];
-					            byte[] fileData = android.util.Base64.decode(base64, android.util.Base64.DEFAULT);
-					
-					            // SECURITY: fileName comes from web page JavaScript running inside this
-					            // WebView (any site the user browses to, not just trusted domains).
-					            // Strip any directory components (e.g. "../../etc/x") so a malicious
-					            // page cannot use path traversal to write outside the Downloads folder.
-					            String safeFileName = new File(fileName == null ? "" : fileName).getName();
-					            if (safeFileName.isEmpty()) {
-					                safeFileName = "download_" + System.currentTimeMillis();
-					            }
-					
-					            File file = new File(
-					                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-					                    safeFileName
-					            );
-					
-					            FileOutputStream fos = new FileOutputStream(file);
-					            fos.write(fileData);
-					            fos.close();
-					
-					            Toast.makeText(getApplicationContext(), "Downloading Complete", Toast.LENGTH_SHORT).show();
-					
-					        } catch (Exception e) {
-					            e.printStackTrace();
-					        }
-				    }
-			
-		}, "Android");
-		
-		
 		webview1.setDownloadListener(new DownloadListener() {
 			    @Override
 			    public void onDownloadStart(String url, String userAgent,
@@ -2577,26 +2628,8 @@ public class SocialMediaActivity extends AppCompatActivity {
 				        String fileName = URLUtil.guessFileName(url, contentDisposition, mimetype);
 				
 				        if (url.startsWith("blob")) {
-					
-					            // 👇 هنا بنجيب الـ blob من الذاكرة
-					            webview1.evaluateJavascript(
-					                    "(function() {" +
-					                            "var xhr = new XMLHttpRequest();" +
-					                            "xhr.open('GET', '" + url + "', true);" +
-					                            "xhr.responseType = 'blob';" +
-					                            "xhr.onload = function() {" +
-					                            "  var reader = new FileReader();" +
-					                            "  reader.onloadend = function() {" +
-					                            "    Android.saveBase64FromBlob(reader.result, '" + fileName + "');" +
-					                            "  };" +
-					                            "  reader.readAsDataURL(xhr.response);" +
-					                            "};" +
-					                            "xhr.send();" +
-					                            "})()",
-					                    null
-					            );
-					
-					        } else {
+				            Toast.makeText(getApplicationContext(), "تنزيل blob غير متاح لأسباب أمنية", Toast.LENGTH_SHORT).show();
+				        } else if (isSafeDownloadUrl(url)) {
 					            // 👇 ده الجزء العادي للـ http/https
 					            DownloadManager.Request request =
 					                    new DownloadManager.Request(Uri.parse(url));
@@ -2996,8 +3029,11 @@ DO NOT FORGET TO ADD THE PERMISSION TO THE MANIFEST TO RUN THIS APP, YOU CAN USE
 		} else {
 			names = ":";
 			try {
-					 String data = getIntent().getDataString();
-				webview1.loadUrl(data);
+					 String data = getIntent().getStringExtra("data");
+					if (data == null) data = getIntent().getDataString();
+					if (isSafeDownloadUrl(data)) {
+						webview1.loadUrl(data);
+					}
 			}
 			catch(Exception e) {
 					  
@@ -3008,7 +3044,11 @@ DO NOT FORGET TO ADD THE PERMISSION TO THE MANIFEST TO RUN THIS APP, YOU CAN USE
 		swiperefreshlayout1.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
 			@Override
 			public void onRefresh() {
-				webview1.loadUrl(webview1.getUrl());
+				if (webview1.getUrl() != null) {
+					webview1.reload();
+				} else {
+					swiperefreshlayout1.setRefreshing(false);
+				}
 			}
 		});
 		exit = 0;
@@ -3026,6 +3066,37 @@ DO NOT FORGET TO ADD THE PERMISSION TO THE MANIFEST TO RUN THIS APP, YOU CAN USE
 		imageview20.setColorFilter(0xFF2196F3, PorterDuff.Mode.MULTIPLY);
 		imageview21.setColorFilter(0xFF2196F3, PorterDuff.Mode.MULTIPLY);
 		edittext5.setLines(1);
+	}
+
+	private void applyBlurToAllWebViews() {
+		applyBlur(webview1);
+		applyBlur(Youtube);
+		applyBlur(insta);
+		applyBlur(twitt);
+		applyBlur(whats);
+		applyBlur(imoo);
+		applyBlur(Facebook);
+	}
+
+	private void applyBlur(WebView webView) {
+		if (webView == null || webView.getUrl() == null) {
+			return;
+		}
+		int blurPixels = Math.max(2, blurAmount == null ? 10 : blurAmount.getProgress());
+		boolean enabled = blurSwitch == null || blurSwitch.isChecked();
+		boolean blurVideos = blurVideoSwitch == null || blurVideoSwitch.isChecked();
+		String script = "(function(){"
+				+ "var id='muslim_media_blur_style';var old=document.getElementById(id);if(old)old.remove();"
+				+ "if(!" + enabled + "){return;}"
+				+ "var s=document.createElement('style');s.id=id;"
+				+ "s.textContent='img,iframe{filter:blur(" + blurPixels + "px) grayscale(35%) !important;}"
+				+ (blurVideos ? "video{filter:blur(" + blurPixels + "px) grayscale(35%) !important;}" : "")
+				+ ".muslim-media-clear{filter:none !important;}';document.head.appendChild(s);"
+				+ "if(!window.muslimMediaBlurBound){window.muslimMediaBlurBound=true;document.addEventListener('click',function(e){"
+				+ "var t=e.target;if(t&&(['IMG','VIDEO','IFRAME'].indexOf(t.tagName)>=0)){t.classList.add('muslim-media-clear');"
+				+ "setTimeout(function(){t.classList.remove('muslim-media-clear');},5000);}} ,true);}"
+				+ "})()";
+		webView.evaluateJavascript(script, null);
 	}
 	
 	

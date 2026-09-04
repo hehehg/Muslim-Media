@@ -70,6 +70,10 @@ public class RequestNetworkController {
 		}
 		
 		try {
+			HttpUrl parsedUrl = HttpUrl.parse(url);
+			if (parsedUrl == null || !"https".equalsIgnoreCase(parsedUrl.scheme())) {
+				throw new IllegalArgumentException("Only HTTPS requests are allowed");
+			}
 			if (requestNetwork.getRequestType() == REQUEST_PARAM) {
 				if (method.equals(GET)) {
 					HttpUrl.Builder httpBuilder;
@@ -118,7 +122,9 @@ public class RequestNetworkController {
 			getClient().newCall(req).enqueue(new Callback() {
 				@Override
 				public void onFailure(Call call, final IOException e) {
-					requestNetwork.getActivity().runOnUiThread(new Runnable() {
+						if (requestNetwork.getActivity() == null || requestNetwork.getActivity().isFinishing()
+								|| requestNetwork.getActivity().isDestroyed()) return;
+						requestNetwork.getActivity().runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
 							requestListener.onErrorResponse(tag, e.getMessage());
@@ -128,7 +134,12 @@ public class RequestNetworkController {
 				
 				@Override
 				public void onResponse(Call call, final Response response) throws IOException {
-					final String responseBody = response.body().string().trim();
+						if (requestNetwork.getActivity() == null || requestNetwork.getActivity().isFinishing()
+								|| requestNetwork.getActivity().isDestroyed()) {
+							response.close();
+							return;
+						}
+						final String responseBody = response.body() == null ? "" : response.body().string().trim();
 					requestNetwork.getActivity().runOnUiThread(new Runnable() {
 						@Override
 						public void run() {

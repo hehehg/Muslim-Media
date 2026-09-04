@@ -168,7 +168,8 @@ public class OfflineSbhaActivity extends AppCompatActivity {
 		count.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View _view) {
-				number.setText(String.valueOf((long)(Double.parseDouble(number.getText().toString()) + 1)));
+				double currentCount = SketchwareUtil.parseDoubleSafe(number.getText().toString(), 0);
+				number.setText(String.valueOf((long)(currentCount + 1)));
 				save.edit().putString("count", number.getText().toString()).commit();
 			}
 		});
@@ -229,6 +230,24 @@ public class OfflineSbhaActivity extends AppCompatActivity {
 			number.setText(save.getString("count", ""));
 		}
 	}
+
+	@Override
+	protected void onDestroy() {
+		if (timer != null) {
+			timer.cancel();
+		}
+		if (clickAnimTimer != null) {
+			clickAnimTimer.cancel();
+		}
+		if (chect_connect != null) {
+			chect_connect.cancel();
+		}
+		if (_timer != null) {
+			_timer.cancel();
+		}
+		super.onDestroy();
+	}
+
 	public void _Animator(final View _view, final String _propertyName, final double _value, final double _duration) {
 		ObjectAnimator anim = new ObjectAnimator();
 		anim.setTarget(_view);
@@ -401,4 +420,4 @@ public class OfflineSbhaActivity extends AppCompatActivity {
 	public int getDisplayHeightPixels() {
 		return getResources().getDisplayMetrics().heightPixels;
 	}
-}
+}

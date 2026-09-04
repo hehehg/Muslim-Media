@@ -444,6 +444,34 @@
 									android:textSize="30sp"
 									android:textColor="#FFFFFF" />
 							</LinearLayout>
+								<Switch
+									android:id="@+id/blur_switch"
+									android:layout_width="match_parent"
+									android:layout_height="wrap_content"
+									android:text="تشويش الصور والفيديوهات"
+									android:textSize="18sp"
+									android:textColor="#FFFFFF"
+									android:checked="true" />
+								<Switch
+									android:id="@+id/blur_video_switch"
+									android:layout_width="match_parent"
+									android:layout_height="wrap_content"
+									android:text="تشويش الفيديوهات أيضًا"
+									android:textSize="18sp"
+									android:textColor="#FFFFFF"
+									android:checked="true" />
+								<TextView
+									android:layout_width="match_parent"
+									android:layout_height="wrap_content"
+									android:text="درجة التشويش"
+									android:textSize="16sp"
+									android:textColor="#FFFFFF" />
+								<SeekBar
+									android:id="@+id/blur_amount"
+									android:layout_width="match_parent"
+									android:layout_height="wrap_content"
+									android:max="24"
+									android:progress="10" />
 							<TextView
 								android:id="@+id/textview13"
 								android:layout_width="match_parent"
@@ -578,22 +606,21 @@
 							<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 								android:id="@+id/swiperefreshlayout1"
 								android:layout_width="0dp"
-								android:layout_height="0dp"
+								android:layout_height="match_parent"
 								android:orientation="vertical"
 								android:layout_weight="1">
-								<TextView
-									android:id="@+id/textview1"
-									android:layout_width="0dp"
-									android:layout_height="0dp"
-									android:padding="8dp"
-									android:textSize="12sp"
-									android:textColor="#000000" />
+								<WebView
+									android:id="@+id/webview1"
+									android:layout_width="match_parent"
+									android:layout_height="match_parent"
+									android:background="@android:color/transparent" />
 							</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-							<WebView
-								android:id="@+id/webview1"
-								android:layout_width="match_parent"
-								android:layout_height="match_parent"
-								android:background="@android:color/transparent" />
+							<TextView
+								android:id="@+id/textview1"
+								android:layout_width="0dp"
+								android:layout_height="0dp"
+								android:visibility="gone"
+								android:textSize="12sp" />
 							<ListView
 								android:id="@+id/listview2"
 								android:layout_width="400dp"

@@ -95,6 +95,17 @@ public class MainActivity extends AppCompatActivity {
 			sav_mode.edit().putString("mode", "night").commit();
 		}
 	}
+
+	@Override
+	protected void onDestroy() {
+		if (t != null) {
+			t.cancel();
+		}
+		if (_timer != null) {
+			_timer.cancel();
+		}
+		super.onDestroy();
+	}
 	
 	public void _style() {
 		linear1.setBackgroundColor(0xFF000000);
@@ -171,4 +182,4 @@ public class MainActivity extends AppCompatActivity {
 	public int getDisplayHeightPixels() {
 		return getResources().getDisplayMetrics().heightPixels;
 	}
-}
+}

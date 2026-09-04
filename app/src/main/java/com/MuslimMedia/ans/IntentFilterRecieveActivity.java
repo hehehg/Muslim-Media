@@ -52,10 +52,23 @@ public class IntentFilterRecieveActivity extends AppCompatActivity {
 	private void initializeLogic() {
 		_intent_filter();
 	}
+
+	private boolean isSafeExternalUrl(String value) {
+		try {
+			Uri uri = Uri.parse(value);
+			return "https".equalsIgnoreCase(uri.getScheme()) && uri.getHost() != null;
+		} catch (Exception e) {
+			return false;
+		}
+	}
 	
 	public void _intent_filter() {
 		try {
 				 String data = getIntent().getDataString();
+			if (!isSafeExternalUrl(data)) {
+				finish();
+				return;
+			}
 			i.setClass(getApplicationContext(), SocialMediaActivity.class);
 			i.putExtra("data", data);
 			startActivity(i);
@@ -116,4 +129,4 @@ public class IntentFilterRecieveActivity extends AppCompatActivity {
 	public int getDisplayHeightPixels() {
 		return getResources().getDisplayMetrics().heightPixels;
 	}
-}
+}

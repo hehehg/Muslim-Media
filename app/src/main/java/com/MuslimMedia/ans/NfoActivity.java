@@ -121,7 +121,7 @@ public class NfoActivity extends AppCompatActivity {
 			@Override
 			public void onClick(View _view) {
 				i.setAction(Intent.ACTION_VIEW);
-				i.setData(Uri.parse("http://muslim-appss-store.web.app"));
+				i.setData(Uri.parse("https://muslim-appss-store.web.app"));
 				startActivity(i);
 			}
 		});
@@ -346,4 +346,4 @@ public class NfoActivity extends AppCompatActivity {
 	public int getDisplayHeightPixels() {
 		return getResources().getDisplayMetrics().heightPixels;
 	}
-}
+}
